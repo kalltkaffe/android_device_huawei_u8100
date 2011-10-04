@@ -1,0 +1,134 @@
+on boot
+    
+# Setup touchscreen calibration
+    chown system system /sys/module/msm_touch/parameters/tscal_xoffset
+    chown system system /sys/module/msm_touch/parameters/tscal_yoffset
+    chown system system /sys/module/msm_touch/parameters/tscal_xscale
+    chown system system /sys/module/msm_touch/parameters/tscal_yscale
+
+# bluetooth
+    chown bluetooth bluetooth /sys/class/rfkill/rfkill0/state
+    chown bluetooth bluetooth /sys/module/bluetooth_power/parameters/power
+    chown bluetooth bluetooth /sys/class/rfkill/rfkill0/type
+    chmod 0660 /sys/class/rfkill/rfkill0/state
+    chown bluetooth bluetooth /proc/bluetooth/sleep/proto
+    chown system system /sys/module/sco/parameters/disable_esco
+    chmod 0660 /sys/module/bluetooth_power/parameters/power
+    chmod 0660 /proc/bluetooth/sleep/proto
+    chown bluetooth bluetooth /dev/ttyHS0
+    chmod 0660 /dev/ttyHS0
+
+# create WIFI filesystem structure
+    mkdir /data/misc 01771 system misc
+    mkdir /data/misc/wifi 0770 system wifi
+    mkdir /data/misc/wifi/sockets
+    chown system wifi /data/misc/wifi/sockets
+    chmod 770 /data/misc/wifi/sockets
+    mkdir /data/misc/dhcp 0770 dhcp dhcp
+    chown dhcp dhcp /data/misc/dhcp
+    mkdir /data/system 0775 system system
+    
+#     
+    mkdir /data/local 0777 radio shell
+    mkdir /data/local/tmp 0777 radio shell
+    chown radio shell /data/local
+    chown radio shell /data/local/tmp
+   
+# sensors    
+    chmod 0666 /dev/accel
+    chmod 0666 /dev/akm8973_aot
+    chmod 0666 /dev/akm8973_dev
+    
+# cpufreq configurations
+    write /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq 245760
+    write /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor ondemand
+    write /sys/devices/system/cpu/cpufreq/ondemand/sampling_rate 500000
+    write /sys/devices/system/cpu/cpufreq/ondemand/up_threshold 90
+    write /sys/devices/system/cpu/cpufreq/ondemand/down_threshold 30
+
+# SD card polling
+    chown system system /sys/bus/platform/devices/msm_sdcc.1/polling
+    chown system system /sys/bus/platform/devices/msm_sdcc.2/polling
+
+# logs
+    chmod 0777 /sys/kernel/logger/log_main/enable
+    chmod 0777 /sys/kernel/logger/log_events/enable
+    chmod 0777 /sys/kernel/logger/log_radio/enable
+    chmod 0777 /sys/kernel/logger/log_main/priority
+    chmod 0777 /sys/kernel/logger/log_events/priority
+    chmod 0777 /sys/kernel/logger/log_radio/priority
+
+# Is this needed? For what?
+    chmod 0667 /dev/graphics/fb0
+
+service qmuxd /system/bin/qmuxd
+
+service hciattach /system/bin/sh /system/etc/init.qcom.bt.sh
+    user bluetooth
+    group qcom_oncrpc bluetooth net_bt_admin system
+    disabled
+    oneshot
+
+service hcid /system/bin/hcid -s -n -f /etc/bluez/hcid.conf
+    socket bluetooth stream 660 bluetooth bluetooth
+    socket dbus_bluetooth stream 660 bluetooth bluetooth
+    # init.rc does not yet support applying capabilities, so run as root and
+    # let hcid drop uid to bluetooth with the right linux capabilities
+    group bluetooth net_bt_admin misc
+    disabled
+
+service bm3obexd /system/bin/dbus_bt -i /etc/bm3
+    user root
+    group bluetooth net_bt_admin
+    disabled
+    oneshot
+
+service bm3OPP /system/bin/sdptool add --channel=4 OPUSH
+    user bluetooth
+    group bluetooth net_bt_admin
+    disabled
+    oneshot
+
+# START HUAWEI RPC SERVICE
+service oem_rpc_svc /system/bin/oem_rpc_svc
+    oneshot
+
+# WPA SETTINGS
+service wpa_supplicant /system/bin/wpa_supplicant -Dawext -ieth0 -W -c/data/misc/wifi/wpa_supplicant.conf
+    group wifi inet
+    socket wpa_eth0 dgram 660 wifi wifi
+    disabled
+    oneshot
+
+service dhcpcd_eth0 /system/bin/dhcpcd -ABKL
+    disabled
+    oneshot
+    
+service iprenew_eth0 /system/bin/dhcpcd -n
+    disabled
+    oneshot
+
+# Compass / Accelerometer daemon
+service akmd /system/bin/akmd2
+    user compass
+    group compass misc input
+
+# Atheros BT filter (doesn't seen to help on the U8100)
+#on property:init.svc.bluetoothd=running
+#    write /sys/devices/virtual/bluetooth/hci0/idle_timeout 7000
+#    start abtfilt
+
+#on property:init.svc.bluetoothd=stopped
+#    stop abtfilt
+
+#service abtfilt /system/bin/abtfilt -c -d -z -n
+#    disabled
+#    oneshot
+
+# Wifi hotspot
+service hostapd /system/bin/logwrapper /system/bin/hostapd /data/misc/wifi/hostapd.conf
+    group wifi inet
+    socket wpa_athap0 dgram 660 wifi wifi
+    disabled
+    oneshot
+

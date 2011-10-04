@@ -1,0 +1,8 @@
+CyanogenMod device configuration for the Huawei U8100
+
+Based a bits and pieces from:
+https://github.com/psyke83/android_device_huawei_u8160
+https://github.com/tilal6991/android_device_huawei_u8150
+https://github.com/tas0s/cm_huawei_u8120_joil
+https://github.com/anryl/u8120
++ several other existing CM7 repos
