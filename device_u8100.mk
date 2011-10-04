@@ -43,7 +43,6 @@ PRODUCT_PACKAGES += \
     gps.u8100 \
     copybit.u8100 \
     lights.msm7k \
-#    abtfilt \
     rzscontrol \
     U8100Parts
 
