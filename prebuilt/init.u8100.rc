@@ -113,17 +113,17 @@ service akmd /system/bin/akmd2
     user compass
     group compass misc input
 
-# Atheros BT filter (doesn't seen to help on the U8100)
-#on property:init.svc.bluetoothd=running
-#    write /sys/devices/virtual/bluetooth/hci0/idle_timeout 7000
-#    start abtfilt
+# Atheros BT filter
+on property:init.svc.bluetoothd=running
+    write /sys/devices/virtual/bluetooth/hci0/idle_timeout 7000
+    start abtfilt
 
-#on property:init.svc.bluetoothd=stopped
-#    stop abtfilt
+on property:init.svc.bluetoothd=stopped
+    stop abtfilt
 
-#service abtfilt /system/bin/abtfilt -c -d -z -n
-#    disabled
-#    oneshot
+service abtfilt /system/bin/abtfilt -c -d -z -n
+    disabled
+    oneshot
 
 # Wifi hotspot
 service hostapd /system/bin/logwrapper /system/bin/hostapd /data/misc/wifi/hostapd.conf

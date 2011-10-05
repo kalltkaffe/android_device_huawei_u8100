@@ -97,6 +97,7 @@ PRODUCT_COPY_FILES += \
     device/huawei/u8100/prebuilt/etc/dhcpcd/dhcpcd.conf:system/etc/dhcpcd/dhcpcd.conf \
     device/huawei/u8100/prebuilt/etc/wifi/wpa_supplicant.conf:system/etc/wifi/wpa_supplicant.conf \
     device/huawei/u8100/prebuilt/hostapd:system/bin/hostapd \
+    device/huawei/u8100/prebuilt/abtfilt:system/bin/abtfilt \
     device/huawei/u8100/prebuilt/hostapd.conf:system/etc/wifi/hostapd.conf
 
 # RIL specific
