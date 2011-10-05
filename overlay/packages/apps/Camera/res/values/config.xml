@@ -26,7 +26,7 @@
 
 	<!-- FFC parameter filtering -->
 	<bool name="ffc_canFocus">false</bool>
-	<bool name="ffc_canZoom">true</bool>
+	<bool name="ffc_canZoom">false</bool>
 	<string name="ffc_supportedEffects"></string>
 
 	<!-- Resolution filtering -->
